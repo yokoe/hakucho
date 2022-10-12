@@ -35,7 +35,7 @@ func Test_ListFiles(t *testing.T) {
 	if err != nil {
 		return
 	}
-	_, err = c.ListFiles([]string{"files(id)"}, 20)
+	_, err = c.ListFiles([]string{"id", "createdTime"}, 20)
 	if err != nil {
 		t.Fatalf("Failed to get list of files: %s", err)
 	}

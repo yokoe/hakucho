@@ -1,6 +1,7 @@
 package hakucho
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/yokoe/hakucho/option"
@@ -28,13 +29,13 @@ func orderFromListOptions(options []option.ListOption) string {
 	return ""
 }
 
-func (c *Client) ListFiles(fields []string, limit int64, options ...option.ListOption) ([]*drive.File, error) {
-	convertedFields := []googleapi.Field{}
-	for _, f := range fields {
-		convertedFields = append(convertedFields, googleapi.Field(f))
+func (c *Client) ListFiles(fileFields []string, limit int64, options ...option.ListOption) ([]*drive.File, error) {
+	escapedFields := []string{}
+	for _, f := range fileFields {
+		escapedFields = append(escapedFields, strings.ReplaceAll(f, ")", ""))
 	}
 
-	call := c.driveService.Files.List().Fields(convertedFields...)
+	call := c.driveService.Files.List().Fields(googleapi.Field(fmt.Sprintf("files(%s)", strings.Join(escapedFields, ", "))))
 
 	query := queryFromListOptions(options)
 	if len(query) > 0 {

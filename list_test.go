@@ -35,8 +35,16 @@ func Test_ListFiles(t *testing.T) {
 	if err != nil {
 		return
 	}
-	_, err = c.ListFiles([]string{"id", "createdTime"}, 20)
+
+	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders())
 	if err != nil {
 		t.Fatalf("Failed to get list of files: %s", err)
 	}
+
+	for _, f := range files {
+		t.Logf("File %s", f.Name)
+	}
+
+	// t.Fail() // for debugging
+
 }

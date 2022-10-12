@@ -49,3 +49,19 @@ func (o orderBy) QueryString() string {
 }
 
 func (o orderBy) OrderString() string { return o.order }
+
+type mimeTypeFilter struct {
+	mimeType string
+}
+
+func OnlyFolders() ListOption {
+	return mimeTypeFilter{mimeType: "application/vnd.google-apps.folder"}
+}
+
+func (o mimeTypeFilter) QueryString() string {
+	return fmt.Sprintf("mimeType = '%s'", strings.ReplaceAll(o.mimeType, "'", ""))
+}
+
+func (o mimeTypeFilter) OrderString() string {
+	return ""
+}

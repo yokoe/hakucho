@@ -38,11 +38,11 @@ func fileExists(name string) bool {
 
 func newTestClient(t *testing.T) (*Client, error) {
 	t.Helper()
-	if !fileExists("credentials/credentials.json") || !fileExists("credentials/token.json") {
+	if !fileExists("testdata/credentials.json") || !fileExists("testdata/token.json") {
 		t.Skip("no credential files")
 		return nil, fmt.Errorf("no credentials")
 	}
-	c, err := NewClient("credentials/credentials.json", "credentials/token.json")
+	c, err := NewClient("testdata/credentials.json", "testdata/token.json")
 	if err != nil {
 		t.Errorf("client init error: %s", err)
 		return nil, err

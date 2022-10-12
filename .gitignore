@@ -15,3 +15,5 @@
 # vendor/
 
 credentials/
+
+testconfig.json

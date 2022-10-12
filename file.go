@@ -24,3 +24,16 @@ func (c *Client) UploadFile(localFile string, uploadFilename string) (*drive.Fil
 	}
 	return res, nil
 }
+
+func (c *Client) createPermission(fileID string, email string, role string, sendEmail bool) error {
+	_, err := c.driveService.Permissions.Create(fileID, &drive.Permission{EmailAddress: email, Role: role, Type: "user"}).SendNotificationEmail(sendEmail).Do()
+	return err
+}
+
+func (c *Client) GrantUserReaderPemission(fileID string, email string, sendEmail bool) error {
+	return c.createPermission(fileID, email, "reader", sendEmail)
+}
+
+func (c *Client) GrantUserWriterPemission(fileID string, email string, sendEmail bool) error {
+	return c.createPermission(fileID, email, "writer", sendEmail)
+}

@@ -55,7 +55,11 @@ type mimeTypeFilter struct {
 }
 
 func OnlyFolders() ListOption {
-	return mimeTypeFilter{mimeType: "application/vnd.google-apps.folder"}
+	return MimeType("application/vnd.google-apps.folder")
+}
+
+func MimeType(mimeType string) ListOption {
+	return mimeTypeFilter{mimeType: mimeType}
 }
 
 func (o mimeTypeFilter) QueryString() string {

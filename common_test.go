@@ -13,7 +13,7 @@ type testConfig struct {
 func loadTestConfig(t *testing.T) testConfig {
 	t.Helper()
 
-	cfgData, err := ioutil.ReadFile("testconfig.json")
+	cfgData, err := ioutil.ReadFile("testdata/testconfig.json")
 	if err != nil {
 		t.Log("no test config")
 		return testConfig{}

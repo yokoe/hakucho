@@ -1,6 +1,7 @@
 package hakucho
 
 import (
+	"fmt"
 	"os"
 
 	"google.golang.org/api/drive/v3"
@@ -23,6 +24,17 @@ func (c *Client) UploadFile(localFile string, uploadFilename string) (*drive.Fil
 		return nil, err
 	}
 	return res, nil
+}
+
+func (c *Client) UploadFileToFolder(localFile string, uploadFilename string, folderID string) (*drive.File, error) {
+	f, err := c.UploadFile(localFile, uploadFilename)
+	if err != nil {
+		return nil, fmt.Errorf("upload error: %w", err)
+	}
+	if err = c.AddParentFolder(f.Id, folderID); err != nil {
+		return nil, fmt.Errorf("add parents error: %w", err)
+	}
+	return f, nil
 }
 
 func (c *Client) AddParentFolder(fileID string, folderID string) error {

@@ -10,16 +10,47 @@ import (
 	"google.golang.org/api/drive/v3"
 )
 
-func createTempTextFile(text string) (*os.File, error) {
+func createTempTextFile(t *testing.T, text string) *os.File {
 	file, err := ioutil.TempFile(os.TempDir(), "hakucho-test")
 	if err != nil {
-		return nil, err
+		t.Fatalf("Failed to prepare temp file: %s", err)
+		return nil
 	}
 	_, err = file.WriteString(text)
 	if err != nil {
-		return nil, err
+		t.Fatalf("Failed to write string into test file: %s", err)
+		return nil
 	}
-	return file, nil
+	return file
+}
+
+func deleteEntry(t *testing.T, c *Client, id string) {
+	t.Helper()
+	if err := c.DeleteFile(id); err != nil {
+		t.Errorf("Failed to delete file %s: %s", id, err)
+	}
+}
+
+func createFolder(t *testing.T, c *Client, prefix string) *drive.File {
+	folderName := fmt.Sprintf("%s-%s", prefix, time.Now().Format("20060102_150406"))
+	folder, err := c.CreateFolder(folderName)
+	if err != nil {
+		t.Fatalf("Failed to create folder %s: %s", folderName, err)
+	}
+	return folder
+}
+
+func uploadTestFile(t *testing.T, c *Client, filenamePrefix string) (string, *drive.File) {
+	filename := fmt.Sprintf("%s-%s.txt", filenamePrefix, time.Now().Format("20060102_150406"))
+
+	testFile := createTempTextFile(t, "hello world")
+
+	uploadedFile, err := c.UploadFile(testFile.Name(), filename)
+	if err != nil {
+		t.Fatalf("Failed to upload file %s: %s", filename, err)
+		return "", nil
+	}
+	return filename, uploadedFile
 }
 
 func TestUploadFileAndDelete(t *testing.T) {
@@ -28,10 +59,7 @@ func TestUploadFileAndDelete(t *testing.T) {
 		return
 	}
 
-	testFile, err := createTempTextFile("hello world")
-	if err != nil {
-		t.Fatalf("Test file create error: %s", err)
-	}
+	testFile := createTempTextFile(t, "hello world")
 
 	uploadName := fmt.Sprintf("hakucho-test-%s.txt", time.Now().Format("20060102_150406"))
 	uploadedFile, err := c.UploadFile(testFile.Name(), uploadName)
@@ -43,23 +71,6 @@ func TestUploadFileAndDelete(t *testing.T) {
 		t.Fatalf("Failed to delete file %s: %s", uploadName, err)
 	}
 
-}
-
-func uploadTestFile(t *testing.T, c *Client, filenamePrefix string) (string, *drive.File) {
-	filename := fmt.Sprintf("%s-%s.txt", filenamePrefix, time.Now().Format("20060102_150406"))
-
-	testFile, err := createTempTextFile("hello world")
-	if err != nil {
-		t.Fatalf("Test file create error: %s", err)
-		return "", nil
-	}
-
-	uploadedFile, err := c.UploadFile(testFile.Name(), filename)
-	if err != nil {
-		t.Fatalf("Failed to upload file %s: %s", filename, err)
-		return "", nil
-	}
-	return filename, uploadedFile
 }
 
 func TestGrantPermissions(t *testing.T) {
@@ -97,15 +108,31 @@ func TestAddParent(t *testing.T) {
 		return
 	}
 
-	folderName := fmt.Sprintf("hakucho-test-%s", time.Now().Format("20060102_150406"))
-	folder, err := c.CreateFolder(folderName)
-	if err != nil {
-		t.Errorf("Failed to create folder %s: %s", folderName, err)
-	}
+	folder := createFolder(t, c, "hakucho-test-add-parent")
 
 	_, uploadedFile := uploadTestFile(t, c, "hakucho-test-child-file")
 	if err = c.AddParentFolder(uploadedFile.Id, folder.Id); err != nil {
 		t.Errorf("Failed to add parent: %s", err)
 	}
+
+	deleteEntry(t, c, uploadedFile.Id)
+	deleteEntry(t, c, folder.Id)
+}
+
+func TestUploadFileToFolder(t *testing.T) {
+	c, err := newTestClient(t)
+	if err != nil {
+		return
+	}
+
+	folder := createFolder(t, c, "hakucho-test-upload-to-folder")
+	file, err := c.UploadFileToFolder(createTempTextFile(t, "hello").Name(), "hakucho-test-child.txt", folder.Id)
+
+	if err != nil {
+		t.Fatalf("Failed to upload file to folder: %s", err)
+	}
+
+	deleteEntry(t, c, file.Id)
+	deleteEntry(t, c, folder.Id)
 
 }

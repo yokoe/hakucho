@@ -25,6 +25,11 @@ func (c *Client) UploadFile(localFile string, uploadFilename string) (*drive.Fil
 	return res, nil
 }
 
+func (c *Client) AddParentFolder(fileID string, folderID string) error {
+	_, err := c.driveService.Files.Update(fileID, &drive.File{}).AddParents(folderID).Do()
+	return err
+}
+
 func (c *Client) createPermission(fileID string, email string, role string, sendEmail bool) error {
 	_, err := c.driveService.Permissions.Create(fileID, &drive.Permission{EmailAddress: email, Role: role, Type: "user"}).SendNotificationEmail(sendEmail).Do()
 	return err

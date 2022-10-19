@@ -23,10 +23,6 @@ func (o parentFolder) QueryString() string {
 }
 func (o parentFolder) OrderString() string { return "" }
 
-type nameContains struct {
-	keyword string
-}
-
 type anyOf struct {
 	options []ListOption
 }
@@ -51,6 +47,10 @@ func ParentIn(folders ...string) ListOption {
 	return anyOf{options: options}
 }
 
+type nameContains struct {
+	keyword string
+}
+
 func NameContains(keyword string) ListOption {
 	return nameContains{keyword: keyword}
 }
@@ -59,6 +59,19 @@ func (o nameContains) QueryString() string {
 	return fmt.Sprintf("name contains '%s'", strings.ReplaceAll(o.keyword, "'", ""))
 }
 func (o nameContains) OrderString() string { return "" }
+
+type fullTextContains struct {
+	keyword string
+}
+
+func FullTextContains(keyword string) ListOption {
+	return fullTextContains{keyword: keyword}
+}
+
+func (o fullTextContains) QueryString() string {
+	return fmt.Sprintf("fullText contains '%s'", strings.ReplaceAll(o.keyword, "'", ""))
+}
+func (o fullTextContains) OrderString() string { return "" }
 
 type orderBy struct {
 	order string

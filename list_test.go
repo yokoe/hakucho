@@ -19,6 +19,7 @@ func Test_queryFromListOptions(t *testing.T) {
 		{"Parent folder", args{[]option.ListOption{option.ParentFolder("folder")}}, "'folder' in parents"},
 		{"Parent folders", args{[]option.ListOption{option.ParentIn("a", "b", "c")}}, "('a' in parents or 'b' in parents or 'c' in parents)"},
 		{"Name contains keyword", args{[]option.ListOption{option.NameContains("keyword")}}, "name contains 'keyword'"},
+		{"FullText contains keyword", args{[]option.ListOption{option.FullTextContains("keyword")}}, "fullText contains 'keyword'"},
 		{"Parent folder and name contains keyword", args{[]option.ListOption{option.ParentFolder("folder"), option.NameContains("keyword")}}, "'folder' in parents and name contains 'keyword'"},
 		{"Parent folder order by createdTime", args{[]option.ListOption{option.ParentFolder("folder"), option.OrderBy("createdTime")}}, "'folder' in parents"},
 	}
@@ -37,7 +38,7 @@ func Test_ListFiles(t *testing.T) {
 		return
 	}
 
-	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders(), option.NameContains("hakucho-test-"))
+	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders(), option.FullTextContains("hakucho-test-"))
 	if err != nil {
 		t.Fatalf("Failed to get list of files: %s", err)
 	}

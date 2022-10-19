@@ -5,7 +5,10 @@ import (
 
 	"github.com/yokoe/hakucho/option"
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 )
+
+const listMaxPageSize = 20
 
 func queryFromListOptions(options []option.ListOption) string {
 	queries := []string{}
@@ -28,7 +31,12 @@ func orderFromListOptions(options []option.ListOption) string {
 }
 
 func (c *Client) ListFiles(fileFields []string, limit int64, options ...option.ListOption) ([]*drive.File, error) {
-	call := c.driveService.Files.List().Fields(escapedFileFields(fileFields))
+	pageSize := limit
+	if pageSize >= listMaxPageSize {
+		pageSize = listMaxPageSize
+	}
+
+	call := c.driveService.Files.List().Fields(escapedFileFields(fileFields), googleapi.Field("nextPageToken")).PageSize(pageSize)
 
 	query := queryFromListOptions(options)
 	if len(query) > 0 {
@@ -40,9 +48,23 @@ func (c *Client) ListFiles(fileFields []string, limit int64, options ...option.L
 		call = call.OrderBy(order)
 	}
 
-	l, err := call.PageSize(limit).Do()
-	if err != nil {
-		return nil, err
+	files := []*drive.File{}
+	nextPageToken := ""
+	for {
+		l, err := call.PageToken(nextPageToken).Do()
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, l.Files...)
+		nextPageToken = l.NextPageToken
+
+		if len(files) > int(limit) || len(nextPageToken) == 0 {
+			break
+		}
 	}
-	return l.Files, nil
+
+	if len(files) > int(limit) {
+		return files[0:limit], nil
+	}
+	return files, nil
 }

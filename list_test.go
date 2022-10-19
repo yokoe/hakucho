@@ -38,13 +38,13 @@ func Test_ListFiles(t *testing.T) {
 		return
 	}
 
-	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders(), option.FullTextContains("hakucho-test-"))
+	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 5, option.OnlyFolders(), option.FullTextContains("hakucho-test-"))
 	if err != nil {
 		t.Fatalf("Failed to get list of files: %s", err)
 	}
 
-	for _, f := range files {
-		t.Logf("File %s", f.Name)
+	for i, f := range files {
+		t.Logf("File %02d: %s", i, f.Name)
 	}
 
 	// t.Fail() // for debugging

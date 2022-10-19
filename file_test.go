@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/yokoe/hakucho/option"
 	"google.golang.org/api/drive/v3"
 )
 
@@ -17,6 +18,25 @@ func createTempTextFile(t *testing.T, text string) *os.File {
 		return nil
 	}
 	_, err = file.WriteString(text)
+	if err != nil {
+		t.Fatalf("Failed to write string into test file: %s", err)
+		return nil
+	}
+	return file
+}
+
+func createTempCSVFile(t *testing.T) *os.File {
+	file, err := ioutil.TempFile(os.TempDir(), "hakucho-test")
+	if err != nil {
+		t.Fatalf("Failed to prepare temp file: %s", err)
+		return nil
+	}
+	_, err = file.WriteString("id,name")
+	if err != nil {
+		t.Fatalf("Failed to write string into test file: %s", err)
+		return nil
+	}
+	_, err = file.WriteString("1,Peter")
 	if err != nil {
 		t.Fatalf("Failed to write string into test file: %s", err)
 		return nil
@@ -126,13 +146,20 @@ func TestUploadFileToFolder(t *testing.T) {
 	}
 
 	folder := createFolder(t, c, "hakucho-test-upload-to-folder")
-	file, err := c.UploadFileToFolder(createTempTextFile(t, "hello").Name(), "hakucho-test-child.txt", folder.Id)
+	txtFile, err := c.UploadFileToFolder(createTempTextFile(t, "hello").Name(), "hakucho-test-child.txt", folder.Id)
 
 	if err != nil {
 		t.Fatalf("Failed to upload file to folder: %s", err)
 	}
 
-	deleteEntry(t, c, file.Id)
+	csvFile, err := c.UploadFileToFolder(createTempCSVFile(t).Name(), "hakucho-test-child.csv", folder.Id, option.ContentType("text/csv"))
+
+	if err != nil {
+		t.Fatalf("Failed to upload file to folder: %s", err)
+	}
+
+	deleteEntry(t, c, txtFile.Id)
+	deleteEntry(t, c, csvFile.Id)
 	deleteEntry(t, c, folder.Id)
 
 }

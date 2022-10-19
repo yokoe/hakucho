@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/yokoe/hakucho/option"
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 )
 
 func (c *Client) GetFile(fileID string, fileFields []string) (*drive.File, error) {
@@ -17,21 +19,27 @@ func (c *Client) DeleteFile(fileID string) error {
 }
 
 // UploadFile uploads file to Google Drive
-func (c *Client) UploadFile(localFile string, uploadFilename string) (*drive.File, error) {
+func (c *Client) UploadFile(localFile string, uploadFilename string, options ...option.UploadOption) (*drive.File, error) {
 	uploadFile, err := os.Open(localFile)
 	if err != nil {
 		return nil, err
 	}
 	f := &drive.File{Name: uploadFilename}
-	res, err := c.driveService.Files.Create(f).Media(uploadFile).Do()
+
+	mediaOptions := []googleapi.MediaOption{}
+	for _, option := range options {
+		mediaOptions = append(mediaOptions, option.MediaOption())
+	}
+
+	res, err := c.driveService.Files.Create(f).Media(uploadFile, mediaOptions...).Do()
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (c *Client) UploadFileToFolder(localFile string, uploadFilename string, folderID string) (*drive.File, error) {
-	f, err := c.UploadFile(localFile, uploadFilename)
+func (c *Client) UploadFileToFolder(localFile string, uploadFilename string, folderID string, options ...option.UploadOption) (*drive.File, error) {
+	f, err := c.UploadFile(localFile, uploadFilename, options...)
 	if err != nil {
 		return nil, fmt.Errorf("upload error: %w", err)
 	}

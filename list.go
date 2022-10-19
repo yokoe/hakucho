@@ -1,12 +1,10 @@
 package hakucho
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/yokoe/hakucho/option"
 	"google.golang.org/api/drive/v3"
-	"google.golang.org/api/googleapi"
 )
 
 func queryFromListOptions(options []option.ListOption) string {
@@ -30,12 +28,7 @@ func orderFromListOptions(options []option.ListOption) string {
 }
 
 func (c *Client) ListFiles(fileFields []string, limit int64, options ...option.ListOption) ([]*drive.File, error) {
-	escapedFields := []string{}
-	for _, f := range fileFields {
-		escapedFields = append(escapedFields, strings.ReplaceAll(f, ")", ""))
-	}
-
-	call := c.driveService.Files.List().Fields(googleapi.Field(fmt.Sprintf("files(%s)", strings.Join(escapedFields, ", "))))
+	call := c.driveService.Files.List().Fields(escapedFileFields(fileFields))
 
 	query := queryFromListOptions(options)
 	if len(query) > 0 {

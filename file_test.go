@@ -136,3 +136,24 @@ func TestUploadFileToFolder(t *testing.T) {
 	deleteEntry(t, c, folder.Id)
 
 }
+
+func TestGetFile(t *testing.T) {
+	c, err := newTestClient(t)
+	if err != nil {
+		return
+	}
+
+	files, err := c.ListFiles([]string{"id"}, 1)
+	if err != nil {
+		t.Fatalf("Failed to get file list: %s", err)
+	}
+	if len(files) == 0 {
+		t.Skip("no files")
+	}
+
+	f, err := c.GetFile(files[0].Id, []string{"id", "createdTime"})
+	if err != nil {
+		t.Fatalf("Failed to get file: %s", err)
+	}
+	t.Logf("Root ID: %s %s", f.Id, f.CreatedTime)
+}

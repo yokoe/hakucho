@@ -36,7 +36,7 @@ func Test_ListFiles(t *testing.T) {
 		return
 	}
 
-	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders())
+	files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 20, option.OnlyFolders(), option.NameContains("hakucho-test-"))
 	if err != nil {
 		t.Fatalf("Failed to get list of files: %s", err)
 	}

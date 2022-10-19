@@ -17,6 +17,7 @@ func Test_queryFromListOptions(t *testing.T) {
 	}{
 		{"No options", args{}, ""},
 		{"Parent folder", args{[]option.ListOption{option.ParentFolder("folder")}}, "'folder' in parents"},
+		{"Parent folders", args{[]option.ListOption{option.ParentsIn("a", "b", "c")}}, "('a' in parents or 'b' in parents or 'c' in parents)"},
 		{"Name contains keyword", args{[]option.ListOption{option.NameContains("keyword")}}, "name contains 'keyword'"},
 		{"Parent folder and name contains keyword", args{[]option.ListOption{option.ParentFolder("folder"), option.NameContains("keyword")}}, "'folder' in parents and name contains 'keyword'"},
 		{"Parent folder order by createdTime", args{[]option.ListOption{option.ParentFolder("folder"), option.OrderBy("createdTime")}}, "'folder' in parents"},

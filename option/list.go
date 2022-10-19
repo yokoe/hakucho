@@ -27,6 +27,30 @@ type nameContains struct {
 	keyword string
 }
 
+type anyOf struct {
+	options []ListOption
+}
+
+func (o anyOf) QueryString() string {
+	queries := []string{}
+	for _, q := range o.options {
+		queries = append(queries, q.QueryString())
+	}
+	return "(" + strings.Join(queries, " or ") + ")"
+}
+
+func (o anyOf) OrderString() string {
+	return ""
+}
+
+func ParentsIn(folders ...string) ListOption {
+	options := []ListOption{}
+	for _, f := range folders {
+		options = append(options, ParentFolder(f))
+	}
+	return anyOf{options: options}
+}
+
 func NameContains(keyword string) ListOption {
 	return nameContains{keyword: keyword}
 }

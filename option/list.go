@@ -43,7 +43,7 @@ func (o anyOf) OrderString() string {
 	return ""
 }
 
-func ParentsIn(folders ...string) ListOption {
+func ParentIn(folders ...string) ListOption {
 	options := []ListOption{}
 	for _, f := range folders {
 		options = append(options, ParentFolder(f))

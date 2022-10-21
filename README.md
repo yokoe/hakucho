@@ -23,7 +23,7 @@ for _, f := range files {
 ### Search files
 
 ```
-files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 5, option.OnlyFolders(), option.FullTextContains("Guitar"))
+files, err := c.ListFiles([]string{"id", "createdTime", "name"}, 5, option.MimeType("text/csv"), option.FullTextContains("Guitar"))
 if err != nil {
   log.Printf("Failed to get list of files: %s", err)
 }

@@ -33,6 +33,9 @@ for i, f := range files {
 }
 ```
 
+#### Available fields
+https://developers.google.com/drive/api/v3/reference/files
+
 #### Available options
 * option.OnlyFolders()
 * option.ParentFolder("parent folder id")

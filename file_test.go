@@ -110,6 +110,16 @@ func TestGrantPermissions(t *testing.T) {
 		if err = c.GrantUserReaderPemission(uploadedFile.Id, cfg.GrantUserEmail, false); err != nil {
 			t.Errorf("Failed to grant reader permission to %s: %s", cfg.GrantUserEmail, err)
 		}
+
+		permissions, err := c.ListPermissions(uploadedFile.Id)
+		if err != nil {
+			t.Errorf("Failed to get permissions list: %s", err)
+		}
+		for _, p := range permissions {
+			if len(p.EmailAddress) == 0 {
+				t.Errorf("Permission object had no email address")
+			}
+		}
 	})
 
 	t.Run("writer", func(t *testing.T) {

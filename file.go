@@ -66,3 +66,11 @@ func (c *Client) GrantUserReaderPemission(fileID string, email string, sendEmail
 func (c *Client) GrantUserWriterPemission(fileID string, email string, sendEmail bool) error {
 	return c.createPermission(fileID, email, "writer", sendEmail)
 }
+
+func (c *Client) ListPermissions(fileID string) ([]*drive.Permission, error) {
+	list, err := c.driveService.Permissions.List(fileID).Fields("permissions(emailAddress, role)").Do()
+	if err != nil {
+		return nil, err
+	}
+	return list.Permissions, nil
+}
